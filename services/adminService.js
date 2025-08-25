@@ -20,5 +20,19 @@ exports.makeAdmin = async (userId) => {
 };
 
 exports.removeAdmin = async (userId) => {
-  return await User.findByIdAndUpdate(userId, { role: "user" }, { new: true });
+   const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (user.role === "user") {
+    throw new Error("User is already a normal User");
+  }
+  if (user.role === "superAdmin") {
+    throw new Error("Cannot demote a SuperAdmin");
+  }
+
+  user.role = "user";
+  await user.save();
+  return user;
 };
